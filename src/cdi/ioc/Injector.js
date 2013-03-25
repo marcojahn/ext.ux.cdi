@@ -1,6 +1,7 @@
 Ext.define('CDI.ioc.Injector', {
     alternateClassName: ['CDI.Injector'],
-    requires: ['Ext.Component', 'CDI.log.Logger', 'CDI.ioc.DependencyProvider'],
+    requires: ['Ext.Base', 'CDI.log.Logger', 'CDI.ioc.DependencyProvider'],
+    //requires: ['Ext.Component', 'CDI.log.Logger', 'CDI.ioc.DependencyProvider'],
     singleton: true,
     constructor: function () {
         this.providers = {};
@@ -116,7 +117,8 @@ Ext.define('CDI.ioc.Injector', {
                 targetInstance[setterFunctionName].call(targetInstance, value);
             }
         } else {
-            if ((Ext.getVersion('extjs') != null) && targetInstance instanceof Ext.ClassManager.get('Ext.Component')) {
+            if ((Ext.getVersion('extjs') != null) && targetInstance instanceof Ext.ClassManager.get('Ext.Base')) {
+            //if ((Ext.getVersion('extjs') != null) && targetInstance instanceof Ext.ClassManager.get('Ext.Component')) {
                 targetInstance.injectConfig = injectConfig;
             } else if (Ext.isFunction(targetInstance.initConfig)) {
                 originalInitConfigFunction = targetInstance.initConfig;
@@ -129,7 +131,7 @@ Ext.define('CDI.ioc.Injector', {
         }
         return targetInstance;
     }
-}, function () {
+}/*, function () {
     if (Ext.getVersion('extjs') != null) {
         Ext.define('CDI.InjectableComponent', {
             override: 'Ext.Component',
@@ -139,5 +141,16 @@ Ext.define('CDI.ioc.Injector', {
                 return this.callParent([config]);
             }
         });
+
+        // selfmade to use inject from Ext.Base children
+        Ext.define('CDI.InjectableBase', {
+            override: 'Ext.Base',
+            constructor: function (config) {
+                config = Ext.Object.merge({}, config || {}, this.injectConfig || {});
+                delete this.injectConfig;
+                this.initConfig(config);
+                return this.callParent([config]);
+            }
+        });
     }
-});
+}*/);

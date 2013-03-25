@@ -3,7 +3,13 @@ Ext.define('CDI.mixin.Injectable', {}, function () {
     createInjectionInterceptor = function () {
         return function () {
             if (!this.$injected) {
+
                 CDI.Injector.inject(this.inject, this, false);
+
+                var config = Ext.Object.merge({}, this.config || {}, this.injectConfig || {});
+                delete this.injectConfig;
+                this.initConfig(config);
+
                 this.$injected = true;
             }
             return this.callParent(arguments);

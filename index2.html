@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>cdi</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <script type="text/javascript" src="./lib/ext-4.1.3/ext-all-dev.js"></script>
+
+    <script type="text/javascript">
+        Ext.Loader.setConfig({
+            enabled: true,
+            disableCaching: true,
+            paths: {
+                'CDI': './src/cdi'
+            }
+        });
+    </script>
+
+    <script type="text/javascript" src="./src/cdi/core/Class.js"></script>
+    <script type="text/javascript" src="./src/cdi/ioc/Injector.js"></script>
+    <script type="text/javascript" src="./src/cdi/mixin/Injectable.js"></script>
+
+    <script type="text/javascript">
+        Ext.onReady(function () {
+            Ext.define('TestApp.logger.Logger', {
+                constructor: function () {
+                    console.log('Logger constructor with arguments');
+                    console.log(arguments);
+                    this.className = arguments[0].loggerName;
+                },
+                log: function (msg) {
+                    console.log(this.className + ': ' + msg);
+                }
+            });
+
+            console.log('setup injection');
+            CDI.Injector.configure({
+                //logger: 'TestApp.logger.Logger'
+                logger: {
+                    fn: function (instance) {
+                        console.log('factory method');
+                        console.log(instance);
+                        console.log('return logger for class {'+instance.$className+'}');
+                        return Ext.create('TestApp.logger.Logger', {
+                            loggerName: instance.$className
+                        });
+                    }
+                }
+            });
+
+            // BaseComponent
+            Ext.define('TestApp.app.Class1', {
+                //extend: 'Ext.Component',
+
+                inject: ['logger'],
+
+                config: {
+                    logger: null
+                },
+
+                constructor: function (arguments) {
+                    this.callParent(arguments);
+
+                    console.log(this)
+                    this.getLogger().log('constructor')
+                }
+            });
+
+            Class1 = Ext.create('TestApp.app.Class1');
+        });
+    </script>
+
+</head>
+<body>
+</body>
+</html>
