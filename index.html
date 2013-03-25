@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>cdi</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <script type="text/javascript" src="./lib/ext-4.1.3/ext-all-dev.js"></script>
+
+    <script type="text/javascript">
+        Ext.Loader.setConfig({
+            enabled: true,
+            disableCaching: true,
+            paths: {
+                'CDI': './src/cdi'
+            }
+        });
+    </script>
+
+    <script type="text/javascript" src="./src/cdi/core/Class.js"></script>
+    <script type="text/javascript" src="./src/cdi/ioc/Injector.js"></script>
+    <script type="text/javascript" src="./src/cdi/mixin/Injectable.js"></script>
+
+    <script type="text/javascript">
+        Ext.onReady(function () {
+            console.log('define teststore');
+            Ext.define('TestApp.model.TestModel', {extend: 'Ext.data.Model'});
+            Ext.define('TestApp.store.TestStore', {
+                extend: 'Ext.data.Store',
+                model: 'TestApp.model.TestModel',
+                constructor: function () {
+                    console.log('teststore constructor');
+                    this.callParent();
+                }
+            });
+
+            console.log('setup injection');
+            CDI.Injector.configure({
+                testStore: 'TestApp.store.TestStore'
+                /*testStore: {
+                    className: 'TestApp.store.TestStore',
+                    singleton: false
+                }*/
+            });
+
+            console.log('use inject');
+            Ext.define("TestApp.TestClass", {
+                extend: 'Ext.Component',
+
+                inject: ['testStore'],
+
+                config: {
+                    testStore: null
+                },
+
+                constructor: function () {
+                    this.callParent(arguments);
+
+                    console.log('constructor');
+                    console.log(this.testStore);
+                }
+            });
+            var test = Ext.create('TestApp.TestClass');
+            var test2 = Ext.create('TestApp.TestClass');
+        });
+    </script>
+
+</head>
+<body>
+</body>
+</html>
